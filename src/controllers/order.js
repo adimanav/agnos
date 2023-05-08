@@ -22,7 +22,12 @@ router.put('/:orderId/add', async (req, res) => {
     if (item.quantity < req.body.quantity)
         return res.status(400).json()
 
-    order.items.push(req.body)
+    const index = order.items.findIndex(x => x.sku == req.body.sku)
+    if (-1 == index) {
+        order.items.push(req.body)
+    } else {
+        order.items[index].quantity += req.body.quantity
+    }
     order.save()
     
     item.quantity -= req.body.quantity
