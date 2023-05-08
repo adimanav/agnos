@@ -14,13 +14,13 @@ router.post('/create', async (req, res) => {
 router.put('/:orderId/add', async (req, res) => {
     let order = await Order.findOne({ _id: req.params.orderId })
     if (null == order)
-        return res.status(400)
+        return res.status(400).json()
     
     let item = await Item.findOne({sku: req.body.sku})
     if (null == item)
-        return res.status(400)
+        return res.status(400).json()
     if (item.quantity < req.body.quantity)
-        return res.status(400)
+        return res.status(400).json()
 
     order.items.push(req.body)
     order.save()
@@ -34,7 +34,7 @@ router.put('/:orderId/add', async (req, res) => {
 router.get('/:orderId/', async (req, res) => {
     let order = await Order.findOne({ _id: req.params.orderId })
     if (null == order)
-        return res.status(400)
+        return res.status(400).json()
 
     let result = {
         orderId: order._id,
@@ -46,17 +46,15 @@ router.get('/:orderId/', async (req, res) => {
         const queried = await Item.findOne({sku: item.sku})
         const cost = queried.price * item.quantity
         let discount = 0
-        if (item.discount != null) {
-            for (let entry of item.discount.entries()) {
-                let key = entry[0]
-                let value = entry[1]
-                if (-1 != order.items.findIndex(x => x.sku == key)) {
-                    discount = value * cost / 100
+        if (queried.discount != null) {
+            for (let entry of queried.discount) {
+                if (-1 != order.items.findIndex(x => x.sku == entry.sku)) {
+                    discount = entry.rate * cost / 100.0
+                    break;
                 }
-                break;
             }
         }
-        const tax = (cost - discount) * queried.tax / 100
+        const tax = (cost - discount) * queried.tax / 100.0
         result.items.push({
             sku: queried.sku,
             quantity: item.quantity,

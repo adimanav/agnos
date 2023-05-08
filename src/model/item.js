@@ -6,10 +6,10 @@ const item = new mongoose.Schema({
     desc: String,
     price: Number,
     tax: Number,
-    discount: {
-        type: Map,
-        of: Number
-    },
+    discount: [{
+        sku: String,
+        rate: Number
+    }],
     quantity: Number
 })
 
