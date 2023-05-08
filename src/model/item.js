@@ -4,6 +4,7 @@ const item = new mongoose.Schema({
     sku: String,
     name: String,
     desc: String,
+    price: Number,
     tax: Number,
     discount: {
         type: Map,
